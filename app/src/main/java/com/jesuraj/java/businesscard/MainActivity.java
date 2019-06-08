@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     File photoFile = null;
     private String root = Environment.getExternalStorageDirectory().toString();
     private String mCurrenPath = "";
-    private Uri uri=null;
+    private Uri uri = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.i(TAG, "dispatchTakePictureIntent: " + photoFile.getAbsolutePath());
 
                     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M)
-                        uri = FileProvider.getUriForFile(getApplicationContext(), "com.android.businessCard", photoFile);
+                        uri = FileProvider.getUriForFile(getApplicationContext(), "com.jesuraj.java.businesscard", photoFile);
                     else
                         uri = Uri.fromFile(photoFile);
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
@@ -109,21 +110,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == REQUEST_CODE_CAMERA && resultCode == RESULT_OK) {
-            if (data != null) {
-                if (data.getExtras() != null) {
 
-                    Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-                    if (bImg) {
-                        ivFrontView.setImageBitmap(bitmap);
+            Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
+            if (bImg) {
+                ivFrontView.setImageBitmap(bitmap);
 //                        saveImage(bitmap, currentDateFormat());
-                    } else {
-                        ivBackView.setImageBitmap(bitmap);
+            } else {
+                ivBackView.setImageBitmap(bitmap);
 //                        saveImage(bitmap, currentDateFormat());
-                    }
-
-                }
-
             }
+
         }
     }
 
