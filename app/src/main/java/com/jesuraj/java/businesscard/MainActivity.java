@@ -10,15 +10,21 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,12 +36,16 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     public static final int REQUEST_CODE_CAMERA = 101;
     private ImageView ivFrontView, ivBackView;
+    private String frontImgPath, backImgPath;
+    private EditText etName, etDesc, etComments;
     private boolean bImg = false;
     private String imgFilePath;
     File photoFile = null;
     private String root = Environment.getExternalStorageDirectory().toString();
     private String mCurrenPath = "";
     private Uri uri = null;
+    private Button buttonSave;
+    private CardViewModel cardViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ivFrontView = findViewById(R.id.ivFrontView);
         ivBackView = findViewById(R.id.ivBackView);
+        cardViewModel = ViewModelProviders.of(this).get(CardViewModel.class);
         ivFrontView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -61,6 +72,31 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        buttonSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                if (!TextUtils.isEmpty(etName.getText()) && !TextUtils.isEmpty(etComments.getText()) && !TextUtils.isEmpty(etDesc.getText())) {
+                    String cName = etName.getText().toString();
+                    String cDescription = etDesc.getText().toString();
+                    String cComments = etComments.getText().toString();
+                    Card card = new Card(cName, cDescription, cComments, frontImgPath, backImgPath, Constants.getDateTime());
+                    cardViewModel.insert(card);
+                    resetCards();
+                } else
+                    Toast.makeText(MainActivity.this, "Fields are empty", Toast.LENGTH_SHORT).show();
+
+            }
+        });
+    }
+
+    private void resetCards() {
+        etComments.setText("");
+        etDesc.setText("");
+        etName.setText("");
+        ivBackView.setImageDrawable(getResources().getDrawable(R.drawable.img));
+        ivFrontView.setImageDrawable(getResources().getDrawable(R.drawable.img));
 
     }
 
@@ -113,10 +149,13 @@ public class MainActivity extends AppCompatActivity {
 
             Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
             if (bImg) {
+
                 ivFrontView.setImageBitmap(bitmap);
+                frontImgPath = photoFile.getAbsolutePath();
 //                        saveImage(bitmap, currentDateFormat());
             } else {
                 ivBackView.setImageBitmap(bitmap);
+                backImgPath = photoFile.getAbsolutePath();
 //                        saveImage(bitmap, currentDateFormat());
             }
 
@@ -145,10 +184,10 @@ public class MainActivity extends AppCompatActivity {
 //        }
 //    }
 
-    private String currentDateFormat() {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd_HH_mm_ss", Locale.US);
-        return simpleDateFormat.format(new Date());
-    }
+//    private String currentDateFormat() {
+//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd_HH_mm_ss", Locale.US);
+//        return simpleDateFormat.format(new Date());
+//    }
 
     private void requestPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
