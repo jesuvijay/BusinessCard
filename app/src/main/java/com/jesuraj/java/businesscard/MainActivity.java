@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -52,13 +53,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        recyclerView=findViewById(R.id.recyclerView);
-        floatingActionButton=findViewById(R.id.floatingActionButton);
-        cardListAdapter=new CardListAdapter(this);
+        recyclerView = findViewById(R.id.recyclerView);
+        floatingActionButton = findViewById(R.id.floatingActionButton);
+        cardListAdapter = new CardListAdapter(this);
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(cardListAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        cardViewModel=ViewModelProviders.of(this).get(CardViewModel.class);
+        cardViewModel = ViewModelProviders.of(this).get(CardViewModel.class);
         cardViewModel.getListAllCards().observe(this, new Observer<List<Card>>() {
             @Override
             public void onChanged(List<Card> cards) {
@@ -68,14 +69,17 @@ public class MainActivity extends AppCompatActivity {
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentManager fragmentManager=getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
-                ComposeFragment composeFragment=new ComposeFragment();
-                fragmentTransaction.replace(R.id.coordinator, composeFragment);
-                fragmentTransaction.commit();
+
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
+                if (prev != null) {
+                    fragmentTransaction.remove(prev);
+                }
+                fragmentTransaction.addToBackStack(null);
+                DialogFragment dialogFragment = ComposeFragment.newInstance("", "");
+                dialogFragment.show(fragmentTransaction, "dialog");
             }
         });
-
 
 
     }
