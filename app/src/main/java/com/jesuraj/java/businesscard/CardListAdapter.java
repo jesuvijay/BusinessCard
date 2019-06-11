@@ -20,19 +20,21 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardLi
 
         layoutInflater = LayoutInflater.from(context);
     }
+
     @NonNull
     @Override
     public CardListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new CardListViewHolder(layoutInflater.inflate(R.layout.list_item,parent,false));
+        return new CardListViewHolder(layoutInflater.inflate(R.layout.list_item, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull CardListViewHolder holder, int position) {
-        if(cardList!=null){
-            Card card=cardList.get(position);
+        if (cardList != null) {
+            Card card = cardList.get(position);
             holder.tvTime.setText(card.getDatetime());
             holder.tvName.setText(card.getCmpyname());
-        }else
+            holder.tvDesc.setText(card.getDescription());
+        } else
             holder.tvName.setText("No Name");
     }
 
@@ -43,19 +45,20 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardLi
 
     @Override
     public int getItemCount() {
-        if (cardList==null)
-        return 0;
+        if (cardList == null)
+            return 0;
         else return cardList.size();
     }
 
     class CardListViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView tvName, tvTime;
+        private TextView tvName, tvTime, tvDesc;
 
         public CardListViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvName);
             tvTime = itemView.findViewById(R.id.tvTime);
+            tvDesc = itemView.findViewById(R.id.tvdesc);
         }
 
 

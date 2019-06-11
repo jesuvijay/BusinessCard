@@ -30,6 +30,8 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -57,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
         floatingActionButton = findViewById(R.id.floatingActionButton);
         cardListAdapter = new CardListAdapter(this);
         recyclerView.setHasFixedSize(true);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+//        recyclerView.addItemDecoration(new DividerItemDecoration(this,LinearLayoutManager.VERTICAL));
         recyclerView.setAdapter(cardListAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         cardViewModel = ViewModelProviders.of(this).get(CardViewModel.class);
@@ -70,14 +74,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
-                if (prev != null) {
-                    fragmentTransaction.remove(prev);
-                }
-                fragmentTransaction.addToBackStack(null);
-                DialogFragment dialogFragment = ComposeFragment.newInstance("", "");
-                dialogFragment.show(fragmentTransaction, "dialog");
+//               FragmentManager fragmentManager=getSupportFragmentManager();
+//               DialogFragment composeFragment=new ComposeFragment();
+//               composeFragment.show(fragmentManager,"name");
+                Intent intent=new Intent(MainActivity.this,ComposeActivity.class);
+                startActivity(intent);
             }
         });
 
