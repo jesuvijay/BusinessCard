@@ -120,7 +120,6 @@ public class ComposeActivity extends AppCompatActivity {
         etName.setText("");
         ivBackView.setImageDrawable(getResources().getDrawable(R.drawable.img));
         ivFrontView.setImageDrawable(getResources().getDrawable(R.drawable.img));
-
     }
 
 
