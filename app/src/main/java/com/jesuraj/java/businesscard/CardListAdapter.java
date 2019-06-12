@@ -43,6 +43,10 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardLi
         notifyDataSetChanged();
     }
 
+    public List<Card> getCardList() {
+        return cardList;
+    }
+
     @Override
     public int getItemCount() {
         if (cardList == null)

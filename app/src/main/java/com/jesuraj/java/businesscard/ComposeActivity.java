@@ -1,29 +1,31 @@
 package com.jesuraj.java.businesscard;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.ViewModelProviders;
-
-import android.Manifest;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Toast;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,17 +37,22 @@ public class ComposeActivity extends AppCompatActivity {
 
 
     private static final String TAG = "ComposeActivity";
-    public static final int REQUEST_CODE_CAMERA = 101;
+    public static final int REQUEST_CODE_FR = 101;
+    public static final int REQUEST_CODE_CAMERA=156;
+    public static final int REQUEST_CODE_BK = 102;
+    public static final int REQUEST_CODE_PR = 103;
     private ImageView ivFrontView, ivBackView;
     private String frontImgPath, backImgPath;
     private EditText etName, etDesc, etComments;
-    private boolean bImg = false;
     private String imgFilePath;
     private File photoFile = null;
     private String mCurrenPath = "";
     private Uri uri = null;
-    private Button buttonSave;
+    private Button buttonSave, btnAdd;
     private CardViewModel cardViewModel;
+
+    private RecyclerView recyclerView;
+    private ProductAdaper prodcutAdaper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,22 +64,22 @@ public class ComposeActivity extends AppCompatActivity {
         etComments = findViewById(R.id.etComments);
         etDesc = findViewById(R.id.etDesc);
         buttonSave = findViewById(R.id.buttonSave);
+        btnAdd = findViewById(R.id.btnAdd);
         cardViewModel = ViewModelProviders.of(this).get(CardViewModel.class);
         ivFrontView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (checkPermission()) {
-                    bImg = true;
-                    dispatchTakePictureIntent();
+                    dispatchTakePictureIntent(REQUEST_CODE_FR);
                 }
             }
         });
+
         ivBackView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (checkPermission()) {
-                    bImg = false;
-                    dispatchTakePictureIntent();
+                    dispatchTakePictureIntent(REQUEST_CODE_BK);
                 }
             }
         });
@@ -91,6 +98,20 @@ public class ComposeActivity extends AppCompatActivity {
 //                    Toast.makeText(ComposeActivity.this, "Fields are empty", Toast.LENGTH_SHORT).show();
             }
         });
+        recyclerView = findViewById(R.id.rvCardList);
+        prodcutAdaper = new ProductAdaper();
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.HORIZONTAL, false));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(prodcutAdaper);
+        btnAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (checkPermission()) {
+//                    bImg = false;
+                    dispatchTakePictureIntent(REQUEST_CODE_PR);
+                }
+            }
+        });
     }
 
     private void resetCards() {
@@ -101,6 +122,7 @@ public class ComposeActivity extends AppCompatActivity {
         ivFrontView.setImageDrawable(getResources().getDrawable(R.drawable.img));
 
     }
+
 
     private boolean checkPermission() {
         if (ContextCompat.checkSelfPermission(ComposeActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -121,20 +143,19 @@ public class ComposeActivity extends AppCompatActivity {
 
     }
 
-    private void dispatchTakePictureIntent() {
+    private void dispatchTakePictureIntent(int rCode) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(ComposeActivity.this.getPackageManager()) != null) {
             try {
                 photoFile = createImageFile();
                 if (photoFile != null) {
                     Log.i(TAG, "dispatchTakePictureIntent: " + photoFile.getAbsolutePath());
-
                     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M)
                         uri = FileProvider.getUriForFile(ComposeActivity.this, "com.jesuraj.java.businesscard", photoFile);
                     else
                         uri = Uri.fromFile(photoFile);
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-                    ComposeActivity.this.startActivityForResult(takePictureIntent, REQUEST_CODE_CAMERA);
+                    ComposeActivity.this.startActivityForResult(takePictureIntent, rCode);
                 }
             } catch (IOException e) {
                 Log.i(TAG, "dispatchTakePictureIntent: " + e.toString());
@@ -147,21 +168,17 @@ public class ComposeActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == REQUEST_CODE_CAMERA && resultCode == RESULT_OK) {
-
+        if (resultCode==RESULT_OK){
             Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
-            if (bImg) {
-
+            if (requestCode == REQUEST_CODE_FR) {
                 ivFrontView.setImageBitmap(bitmap);
-                frontImgPath = photoFile.getAbsolutePath();
-//                        saveImage(bitmap, currentDateFormat());
-            } else {
+            } else if (requestCode == REQUEST_CODE_BK ) {
                 ivBackView.setImageBitmap(bitmap);
-                backImgPath = photoFile.getAbsolutePath();
-//                        saveImage(bitmap, currentDateFormat());
-            }
-
+            }else
+            prodcutAdaper.addData(new ProductData(photoFile.getAbsolutePath(), ThumbnailUtils.extractThumbnail(bitmap, 100, 100)));
         }
+
+
     }
 
 

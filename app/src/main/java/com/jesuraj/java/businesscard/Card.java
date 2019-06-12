@@ -18,7 +18,14 @@ public class Card {
     private String bimgpath;
     private String datetime;
 
-    public Card() {
+    private String productPhotos;
+
+    public String getProductPhotos() {
+        return productPhotos;
+    }
+
+    public void setProductPhotos(String productPhotos) {
+        this.productPhotos = productPhotos;
     }
 
     public int getUsrid() {
@@ -87,7 +94,7 @@ public class Card {
         this.datetime = datetime;
     }
 
-    public Card(int usrid, String cmpyname, String description, String comments, String fimgpath, String bimgpath, String datetime) {
+    public Card(int usrid, String cmpyname, String description, String comments, String fimgpath, String bimgpath, String datetime, String productPhotos) {
         this.usrid = usrid;
         this.cmpyname = cmpyname;
         this.description = description;
@@ -95,6 +102,7 @@ public class Card {
         this.fimgpath = fimgpath;
         this.bimgpath = bimgpath;
         this.datetime = datetime;
+        this.productPhotos = productPhotos;
     }
 }
 

@@ -1,46 +1,30 @@
 package com.jesuraj.java.businesscard;
 
-import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.os.Build;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Locale;
 
@@ -77,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 //               FragmentManager fragmentManager=getSupportFragmentManager();
 //               DialogFragment composeFragment=new ComposeFragment();
 //               composeFragment.show(fragmentManager,"name");
-                Intent intent=new Intent(MainActivity.this,ComposeActivity.class);
+                Intent intent = new Intent(MainActivity.this, ComposeActivity.class);
                 startActivity(intent);
             }
         });
@@ -85,5 +69,83 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.home, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.export_csv:
+                // export operation
+                new ExportCsv(this,cardListAdapter.getCardList()).execute();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+    }
+
+    private static class ExportCsv extends AsyncTask<Void, Void, Void> {
+
+        File exportdir;
+        private List<Card> cardLis;
+        private String SEPARATOR = " , ";
+        private String DELIMITER = "\n";
+        private WeakReference<MainActivity> activityWeakReference;
+
+
+        public ExportCsv(MainActivity activity,List<Card> cardLis) {
+            this.cardLis = cardLis;
+            activityWeakReference=new WeakReference<MainActivity>(activity);
+
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            exportdir = new File(Environment.getExternalStorageDirectory(), "/BusinessCard/Excel_Report");
+            if (!exportdir.exists()) {
+                exportdir.mkdirs();
+
+            }
+            File file = new File(exportdir, "businessCard.csv");
+            if (file.exists()) {
+                file.delete();
+            }
+            try {
+                file.createNewFile();
+                FileWriter fileWriter = new FileWriter(file);
+//                int usrid, String cmpyname, String description, String comments, String fimgpath, String bimgpath, String datetime
+                fileWriter.append("Id").append(SEPARATOR)
+                        .append("Company name").append(SEPARATOR)
+                        .append("Description").append(SEPARATOR)
+                        .append("Comments").append(SEPARATOR)
+                        .append("FrontImagePath").append(SEPARATOR)
+                        .append("BackImagePath").append(SEPARATOR)
+                        .append("Datetime").append(SEPARATOR)
+                        .append(DELIMITER);
+
+                for (Card card : cardLis) {
+                    fileWriter.append(java.lang.String.format(Locale.US, "%d%s%s%s%s%s%s%s%s%s%s%s%s%s", card.getUsrid(), SEPARATOR, card.getCmpyname(), SEPARATOR, card.getDescription(), SEPARATOR, card.getComments(), SEPARATOR, card.getFimgpath(), SEPARATOR, card.getBimgpath(), SEPARATOR, card.getDatetime(), DELIMITER));
+                }
+                fileWriter.flush();
+                fileWriter.close();
+
+            } catch (IOException e) {
+                Log.d(TAG, "doInBackground: " + e.toString());
+
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            Toast.makeText(activityWeakReference.get(), "Export successful", Toast.LENGTH_SHORT).show();
+        }
+    }
 }

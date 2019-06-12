@@ -6,7 +6,7 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-@Database(version = 1, entities = {Card.class},exportSchema = false)
+@Database(version = 2, entities = {Card.class},exportSchema = false)
 public abstract class CardDatabase extends RoomDatabase {
 
     abstract CardDao cardDao();
@@ -19,7 +19,8 @@ public abstract class CardDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room
                                .databaseBuilder(context.getApplicationContext(), CardDatabase.class, "card_database")
-                               .build();
+                            .fallbackToDestructiveMigration()
+                            .build();
                 }
             }
         }
