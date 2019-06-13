@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,12 +34,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class ComposeActivity extends AppCompatActivity {
+public class ComposeActivity extends AppCompatActivity implements RecyclerViewClickListener {
 
 
     private static final String TAG = "ComposeActivity";
     public static final int REQUEST_CODE_FR = 101;
-    public static final int REQUEST_CODE_CAMERA=156;
+    public static final int REQUEST_CODE_CAMERA = 156;
     public static final int REQUEST_CODE_BK = 102;
     public static final int REQUEST_CODE_PR = 103;
     private ImageView ivFrontView, ivBackView;
@@ -87,11 +88,10 @@ public class ComposeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-//                if (!TextUtils.isEmpty(etName.getText()) && !TextUtils.isEmpty(etComments.getText()) && !TextUtils.isEmpty(etDesc.getText())) {
                 String cName = etName.getText().toString();
                 String cDescription = etDesc.getText().toString();
                 String cComments = etComments.getText().toString();
-                Card card = new Card(cName, cDescription, cComments, frontImgPath, backImgPath, Constants.getDateTime());
+                Card card = new Card(cName, cDescription, cComments, frontImgPath, backImgPath, Constants.getDateTime(), attachProducts());
                 cardViewModel.insert(card);
                 resetCards();
 //                } else
@@ -99,7 +99,7 @@ public class ComposeActivity extends AppCompatActivity {
             }
         });
         recyclerView = findViewById(R.id.rvCardList);
-        prodcutAdaper = new ProductAdaper();
+        prodcutAdaper = new ProductAdaper(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.HORIZONTAL, false));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(prodcutAdaper);
@@ -114,12 +114,22 @@ public class ComposeActivity extends AppCompatActivity {
         });
     }
 
+    private String attachProducts() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (ProductData productData : prodcutAdaper.getPathList()) {
+            stringBuilder.append(productData.getPath());
+            stringBuilder.append(",");
+        }
+        return stringBuilder.toString();
+    }
+
     private void resetCards() {
         etComments.setText("");
         etDesc.setText("");
         etName.setText("");
         ivBackView.setImageDrawable(getResources().getDrawable(R.drawable.img));
         ivFrontView.setImageDrawable(getResources().getDrawable(R.drawable.img));
+        prodcutAdaper.clearData();
     }
 
 
@@ -167,14 +177,14 @@ public class ComposeActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (resultCode==RESULT_OK){
+        if (resultCode == RESULT_OK) {
             Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
             if (requestCode == REQUEST_CODE_FR) {
-                ivFrontView.setImageBitmap(bitmap);
-            } else if (requestCode == REQUEST_CODE_BK ) {
+                ivFrontView.setImageBitmap(ThumbnailUtils.extractThumbnail(bitmap, 100, 100));
+            } else if (requestCode == REQUEST_CODE_BK) {
                 ivBackView.setImageBitmap(bitmap);
-            }else
-            prodcutAdaper.addData(new ProductData(photoFile.getAbsolutePath(), ThumbnailUtils.extractThumbnail(bitmap, 100, 100)));
+            } else
+                prodcutAdaper.addData(new ProductData(photoFile.getAbsolutePath(), ThumbnailUtils.extractThumbnail(bitmap, 100, 100)));
         }
 
 
@@ -214,5 +224,15 @@ public class ComposeActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(ComposeActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_CAMERA);
 
         }
+    }
+
+    @Override
+    public void onClick(View view, int position) {
+
+    }
+
+    @Override
+    public void onLongClick(View view, int position) {
+
     }
 }

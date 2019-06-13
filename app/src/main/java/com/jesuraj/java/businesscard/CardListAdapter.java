@@ -15,16 +15,18 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardLi
 
     private final LayoutInflater layoutInflater;
     private List<Card> cardList;
+    private CardClickListener cardClickListener;
 
-    public CardListAdapter(Context context) {
+    public  CardListAdapter(Context context,CardClickListener cardClickListener) {
 
         layoutInflater = LayoutInflater.from(context);
+        this.cardClickListener=cardClickListener;
     }
 
     @NonNull
     @Override
     public CardListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new CardListViewHolder(layoutInflater.inflate(R.layout.list_item, parent, false));
+        return new CardListViewHolder(layoutInflater.inflate(R.layout.list_item, parent, false),cardClickListener);
     }
 
     @Override
@@ -54,17 +56,28 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardLi
         else return cardList.size();
     }
 
-    class CardListViewHolder extends RecyclerView.ViewHolder {
+    class CardListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private TextView tvName, tvTime, tvDesc;
 
-        public CardListViewHolder(@NonNull View itemView) {
+        private CardClickListener cardClickListener;
+        public CardListViewHolder(@NonNull View itemView,CardClickListener cardClickListener) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvName);
             tvTime = itemView.findViewById(R.id.tvTime);
             tvDesc = itemView.findViewById(R.id.tvdesc);
+            this.cardClickListener=cardClickListener;
         }
 
 
+        @Override
+        public void onClick(View v) {
+            cardClickListener.onClick(getAdapterPosition());
+
+        }
+    }
+
+    public interface CardClickListener{
+        void onClick(int position);
     }
 }

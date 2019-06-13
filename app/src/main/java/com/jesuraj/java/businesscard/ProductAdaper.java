@@ -15,14 +15,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProductAdaper extends RecyclerView.Adapter<ProductAdaper.CardViewHoldeer> {
-    private List<ProductData> pathList=new ArrayList<>();
+    private List<ProductData> pathList = new ArrayList<>();
+    private RecyclerViewClickListener recyclerViewClickListener;
 
 
     @NonNull
     @Override
     public CardViewHoldeer onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        return new CardViewHoldeer(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_item, parent, false));
+        return new CardViewHoldeer(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_item, parent, false), recyclerViewClickListener);
     }
 
     @Override
@@ -31,8 +32,15 @@ public class ProductAdaper extends RecyclerView.Adapter<ProductAdaper.CardViewHo
         holder.imageView.setImageBitmap(pathList.get(position).getBitmap());
     }
 
-    public ProductAdaper() {
+    public ProductAdaper(RecyclerViewClickListener recyclerViewClickListener) {
+        this.recyclerViewClickListener = recyclerViewClickListener;
 
+
+    }
+
+    public void clearData() {
+        pathList.clear();
+        notifyDataSetChanged();
     }
 
     @Override
@@ -48,17 +56,36 @@ public class ProductAdaper extends RecyclerView.Adapter<ProductAdaper.CardViewHo
 
     }
 
+    public List<ProductData> getPathList() {
+        return pathList;
+    }
+
     public void setPathList(List<ProductData> pathList) {
         this.pathList = pathList;
     }
 
-    class CardViewHoldeer extends RecyclerView.ViewHolder {
+    class CardViewHoldeer extends RecyclerView.ViewHolder implements View.OnClickListener,View.OnLongClickListener {
         private ImageView imageView;
+        private RecyclerViewClickListener recyclerViewClickListener;
 
-        public CardViewHoldeer(@NonNull View itemView) {
+        public CardViewHoldeer(@NonNull View itemView, RecyclerViewClickListener recyclerViewClickListener) {
             super(itemView);
             imageView = itemView.findViewById(R.id.ivProduct);
+            this.recyclerViewClickListener = recyclerViewClickListener;
+            itemView.setOnClickListener(this);
 
+
+        }
+
+        @Override
+        public void onClick(View v) {
+            recyclerViewClickListener.onClick(v, getAdapterPosition());
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            recyclerViewClickListener.onLongClick(v,getAdapterPosition());
+            return true;
         }
     }
 }

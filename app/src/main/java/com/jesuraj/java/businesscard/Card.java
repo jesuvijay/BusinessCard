@@ -85,13 +85,14 @@ public class Card {
     }
 
     @Ignore
-    public Card(String cmpyname, String description, String comments, String fimgpath, String bimgpath, String datetime) {
+    public Card(String cmpyname, String description, String comments, String fimgpath, String bimgpath, String datetime,String productPhotos) {
         this.cmpyname = cmpyname;
         this.description = description;
         this.comments = comments;
         this.fimgpath = fimgpath;
         this.bimgpath = bimgpath;
         this.datetime = datetime;
+        this.productPhotos=productPhotos;
     }
 
     public Card(int usrid, String cmpyname, String description, String comments, String fimgpath, String bimgpath, String datetime, String productPhotos) {

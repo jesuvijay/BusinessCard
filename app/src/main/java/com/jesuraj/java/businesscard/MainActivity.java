@@ -28,7 +28,7 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements CardListAdapter.CardClickListener {
     private static final String TAG = "MainActivity";
     private CardListAdapter cardListAdapter;
     private RecyclerView recyclerView;
@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         recyclerView = findViewById(R.id.recyclerView);
         floatingActionButton = findViewById(R.id.floatingActionButton);
-        cardListAdapter = new CardListAdapter(this);
+        cardListAdapter = new CardListAdapter(this,this);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 //        recyclerView.addItemDecoration(new DividerItemDecoration(this,LinearLayoutManager.VERTICAL));
@@ -81,12 +81,23 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.export_csv:
                 // export operation
-                new ExportCsv(this,cardListAdapter.getCardList()).execute();
+                new ExportCsv(this, cardListAdapter.getCardList()).execute();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
 
+    }
+
+    @Override
+    public void onClick(int position) {
+        showDetails(position);
+    }
+
+    private void showDetails(int position) {
+        Intent    intenr=new Intent(this,ComposeActivity.class);
+        intenr.putExtra(,position);
+        startActivity(intenr);
     }
 
     private static class ExportCsv extends AsyncTask<Void, Void, Void> {
@@ -98,9 +109,9 @@ public class MainActivity extends AppCompatActivity {
         private WeakReference<MainActivity> activityWeakReference;
 
 
-        public ExportCsv(MainActivity activity,List<Card> cardLis) {
+        public ExportCsv(MainActivity activity, List<Card> cardLis) {
             this.cardLis = cardLis;
-            activityWeakReference=new WeakReference<MainActivity>(activity);
+            activityWeakReference = new WeakReference<MainActivity>(activity);
 
         }
 
@@ -125,11 +136,12 @@ public class MainActivity extends AppCompatActivity {
                         .append("Comments").append(SEPARATOR)
                         .append("FrontImagePath").append(SEPARATOR)
                         .append("BackImagePath").append(SEPARATOR)
+                        .append("ProductImgPath").append(SEPARATOR)
                         .append("Datetime").append(SEPARATOR)
                         .append(DELIMITER);
 
                 for (Card card : cardLis) {
-                    fileWriter.append(java.lang.String.format(Locale.US, "%d%s%s%s%s%s%s%s%s%s%s%s%s%s", card.getUsrid(), SEPARATOR, card.getCmpyname(), SEPARATOR, card.getDescription(), SEPARATOR, card.getComments(), SEPARATOR, card.getFimgpath(), SEPARATOR, card.getBimgpath(), SEPARATOR, card.getDatetime(), DELIMITER));
+                    fileWriter.append(java.lang.String.format(Locale.US, "%d%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", card.getUsrid(), SEPARATOR, card.getCmpyname(), SEPARATOR, card.getDescription(), SEPARATOR, card.getComments(), SEPARATOR, card.getFimgpath(), SEPARATOR, card.getBimgpath(), SEPARATOR, card.getDatetime(), SEPARATOR, card.getProductPhotos(), DELIMITER));
                 }
                 fileWriter.flush();
                 fileWriter.close();
