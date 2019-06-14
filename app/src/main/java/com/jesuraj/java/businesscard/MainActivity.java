@@ -1,6 +1,5 @@
 package com.jesuraj.java.businesscard;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,6 +29,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements CardListAdapter.CardClickListener {
     private static final String TAG = "MainActivity";
+    public static final String CARD_DETAILS = "card_details";
     private CardListAdapter cardListAdapter;
     private RecyclerView recyclerView;
     private CardViewModel cardViewModel;
@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements CardListAdapter.C
         setContentView(R.layout.activity_main);
         recyclerView = findViewById(R.id.recyclerView);
         floatingActionButton = findViewById(R.id.floatingActionButton);
-        cardListAdapter = new CardListAdapter(this,this);
+        cardListAdapter = new CardListAdapter(this, this);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 //        recyclerView.addItemDecoration(new DividerItemDecoration(this,LinearLayoutManager.VERTICAL));
@@ -95,8 +95,8 @@ public class MainActivity extends AppCompatActivity implements CardListAdapter.C
     }
 
     private void showDetails(int position) {
-        Intent    intenr=new Intent(this,ComposeActivity.class);
-        intenr.putExtra(,position);
+        Intent intenr = new Intent(this, ComposeActivity.class);
+        intenr.putExtra(CARD_DETAILS, cardListAdapter.getItem(position));
         startActivity(intenr);
     }
 

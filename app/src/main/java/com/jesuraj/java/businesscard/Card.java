@@ -1,12 +1,15 @@
 package com.jesuraj.java.businesscard;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 @Entity
-public class Card {
+public class Card implements Parcelable {
     @PrimaryKey(autoGenerate = true)
     private int usrid;
     @ColumnInfo(name = "companyname")
@@ -19,6 +22,29 @@ public class Card {
     private String datetime;
 
     private String productPhotos;
+
+    protected Card(Parcel in) {
+        usrid = in.readInt();
+        cmpyname = in.readString();
+        description = in.readString();
+        comments = in.readString();
+        fimgpath = in.readString();
+        bimgpath = in.readString();
+        datetime = in.readString();
+        productPhotos = in.readString();
+    }
+
+    public static final Creator<Card> CREATOR = new Creator<Card>() {
+        @Override
+        public Card createFromParcel(Parcel in) {
+            return new Card(in);
+        }
+
+        @Override
+        public Card[] newArray(int size) {
+            return new Card[size];
+        }
+    };
 
     public String getProductPhotos() {
         return productPhotos;
@@ -104,6 +130,23 @@ public class Card {
         this.bimgpath = bimgpath;
         this.datetime = datetime;
         this.productPhotos = productPhotos;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(usrid);
+        dest.writeString(cmpyname);
+        dest.writeString(description);
+        dest.writeString(comments);
+        dest.writeString(fimgpath);
+        dest.writeString(bimgpath);
+        dest.writeString(datetime);
+        dest.writeString(productPhotos);
     }
 }
 

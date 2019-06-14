@@ -16,7 +16,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,9 +27,12 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.textfield.TextInputEditText;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -44,7 +46,7 @@ public class ComposeActivity extends AppCompatActivity implements RecyclerViewCl
     public static final int REQUEST_CODE_PR = 103;
     private ImageView ivFrontView, ivBackView;
     private String frontImgPath, backImgPath;
-    private EditText etName, etDesc, etComments;
+    private TextInputEditText etName, etDesc, etComments;
     private String imgFilePath;
     private File photoFile = null;
     private String mCurrenPath = "";
@@ -54,6 +56,7 @@ public class ComposeActivity extends AppCompatActivity implements RecyclerViewCl
 
     private RecyclerView recyclerView;
     private ProductAdaper prodcutAdaper;
+    private Card cardData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +68,11 @@ public class ComposeActivity extends AppCompatActivity implements RecyclerViewCl
         etComments = findViewById(R.id.etComments);
         etDesc = findViewById(R.id.etDesc);
         buttonSave = findViewById(R.id.buttonSave);
+        recyclerView = findViewById(R.id.rvCardList);
         btnAdd = findViewById(R.id.btnAdd);
         cardViewModel = ViewModelProviders.of(this).get(CardViewModel.class);
+
+        prodcutAdaper = new ProductAdaper(this);
         ivFrontView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,8 +104,7 @@ public class ComposeActivity extends AppCompatActivity implements RecyclerViewCl
 //                    Toast.makeText(ComposeActivity.this, "Fields are empty", Toast.LENGTH_SHORT).show();
             }
         });
-        recyclerView = findViewById(R.id.rvCardList);
-        prodcutAdaper = new ProductAdaper(this);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.HORIZONTAL, false));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(prodcutAdaper);
@@ -112,6 +117,30 @@ public class ComposeActivity extends AppCompatActivity implements RecyclerViewCl
                 }
             }
         });
+        Intent intent = getIntent();
+        if (intent.getExtras() != null) {
+            cardData = intent.getExtras().getParcelable(MainActivity.CARD_DETAILS);
+            setData(cardData);
+        }
+    }
+
+    private void setData(Card cardData) {
+        etComments.setText(cardData.getComments());
+        etDesc.setText(cardData.getDescription());
+        etName.setText(cardData.getCmpyname());
+        ivBackView.setImageBitmap(ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(cardData.getBimgpath()), 100, 100));
+        ivFrontView.setImageBitmap(ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(cardData.getFimgpath()), 100, 100));
+        String tmp = cardData.getProductPhotos();
+        String[] mData = tmp.split(",");
+        ArrayList<ProductData> productData = new ArrayList<>();
+        for (String mData1 : mData) {
+            productData.add(new ProductData(mData1, ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(mData1), 100, 100)));
+
+        }
+
+        prodcutAdaper.setPathList(productData);
+        buttonSave.setVisibility(View.GONE);
+        btnAdd.setVisibility(View.GONE);
     }
 
     private String attachProducts() {
@@ -180,8 +209,10 @@ public class ComposeActivity extends AppCompatActivity implements RecyclerViewCl
         if (resultCode == RESULT_OK) {
             Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
             if (requestCode == REQUEST_CODE_FR) {
+                frontImgPath=photoFile.getAbsolutePath();
                 ivFrontView.setImageBitmap(ThumbnailUtils.extractThumbnail(bitmap, 100, 100));
             } else if (requestCode == REQUEST_CODE_BK) {
+                backImgPath=photoFile.getAbsolutePath();
                 ivBackView.setImageBitmap(bitmap);
             } else
                 prodcutAdaper.addData(new ProductData(photoFile.getAbsolutePath(), ThumbnailUtils.extractThumbnail(bitmap, 100, 100)));

@@ -1,6 +1,7 @@
 package com.jesuraj.java.businesscard;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,16 +18,17 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardLi
     private List<Card> cardList;
     private CardClickListener cardClickListener;
 
-    public  CardListAdapter(Context context,CardClickListener cardClickListener) {
+    public CardListAdapter(Context context, CardClickListener cardClickListener) {
 
         layoutInflater = LayoutInflater.from(context);
-        this.cardClickListener=cardClickListener;
+        this.cardClickListener = cardClickListener;
     }
+
 
     @NonNull
     @Override
     public CardListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new CardListViewHolder(layoutInflater.inflate(R.layout.list_item, parent, false),cardClickListener);
+        return new CardListViewHolder(layoutInflater.inflate(R.layout.list_item, parent, false), cardClickListener);
     }
 
     @Override
@@ -38,6 +40,10 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardLi
             holder.tvDesc.setText(card.getDescription());
         } else
             holder.tvName.setText("No Name");
+    }
+
+    public Card getItem(int position) {
+        return cardList.get(position);
     }
 
     public void setCardList(List<Card> cardList) {
@@ -61,23 +67,26 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardLi
         private TextView tvName, tvTime, tvDesc;
 
         private CardClickListener cardClickListener;
-        public CardListViewHolder(@NonNull View itemView,CardClickListener cardClickListener) {
+
+        public CardListViewHolder(@NonNull View itemView, CardClickListener cardClickListener) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvName);
             tvTime = itemView.findViewById(R.id.tvTime);
             tvDesc = itemView.findViewById(R.id.tvdesc);
             this.cardClickListener=cardClickListener;
+            itemView.setOnClickListener(this);
         }
 
 
         @Override
         public void onClick(View v) {
+
             cardClickListener.onClick(getAdapterPosition());
 
         }
     }
 
-    public interface CardClickListener{
+    public interface CardClickListener {
         void onClick(int position);
     }
 }
