@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -56,6 +57,7 @@ public class ComposeActivity extends AppCompatActivity implements RecyclerViewCl
     private RecyclerView recyclerView;
     private ProductAdaper prodcutAdaper;
     private Card cardData;
+    private boolean viewData = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +122,7 @@ public class ComposeActivity extends AppCompatActivity implements RecyclerViewCl
         if (intent.getExtras() != null) {
             cardData = intent.getExtras().getParcelable(MainActivity.CARD_DETAILS);
             setData(cardData);
+            viewData = true;
         }
     }
 
@@ -264,40 +267,55 @@ public class ComposeActivity extends AppCompatActivity implements RecyclerViewCl
 
     @Override
     public void onLongClick(View view, final int position) {
-        Toast.makeText(this, "long clicked", Toast.LENGTH_SHORT).show();
-        new AlertDialog.Builder(ComposeActivity.this)
-                .setMessage("Do you want to remove this image?")
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        prodcutAdaper.removeData(position);
-                        Toast.makeText(ComposeActivity.this, "removed", Toast.LENGTH_SHORT).show();
-                    }
-                }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        }).show();
+        if (!viewData){
+            //        Toast.makeText(this, "long clicked", Toast.LENGTH_SHORT).show();
+            new AlertDialog.Builder(ComposeActivity.this)
+                    .setMessage("Do you want to remove this image?")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                File file = new File(prodcutAdaper.getItem(position).getPath());
+                                file.delete();
+                                prodcutAdaper.removeData(position);
+                                Toast.makeText(ComposeActivity.this, "removed", Toast.LENGTH_SHORT).show();
+                            } catch (Exception e) {
+                                Log.d(TAG, "");
+                                Toast.makeText(ComposeActivity.this, "unable to remove file", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            }).show();
+        }
+
 
     }
 
     @Override
     public void onBackPressed() {
-        new AlertDialog.Builder(ComposeActivity.this)
-                .setMessage("Do you want to exit?")
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                        dialog.dismiss();
-                    }
-                }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        }).show();
+        if (viewData || (TextUtils.isEmpty(etName.getText()) && TextUtils.isEmpty(etDesc.getText()) && TextUtils.isEmpty(etComments.getText()))) {
+            super.onBackPressed();
+        } else {
+            new AlertDialog.Builder(ComposeActivity.this)
+                    .setMessage("Do you want to exit?")
+                    .setPositiveButton("yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                            dialog.dismiss();
+                        }
+                    }).setNegativeButton("no", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            }).show();
+        }
+
     }
 
 }

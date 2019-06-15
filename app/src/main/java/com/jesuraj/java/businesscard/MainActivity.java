@@ -12,7 +12,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -20,7 +19,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.ajts.androidmads.library.SQLiteToExcel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
@@ -105,7 +103,9 @@ public class MainActivity extends AppCompatActivity implements CardListAdapter.C
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        cardViewModel.delete(cardListAdapter.getItem(position));
+                        Card card = cardListAdapter.getItem(position);
+                        deleteAllFiles(card);
+                        cardViewModel.delete(card);
 
                     }
                 })
@@ -116,6 +116,27 @@ public class MainActivity extends AppCompatActivity implements CardListAdapter.C
                     }
                 }).show();
     }
+
+    private void deleteAllFiles(Card card) {
+        try {
+            // backCard image
+            new File(card.getBimgpath()).delete();
+
+            new File(card.getFimgpath()).delete();
+
+            String[] mProductImg = card.getProductPhotos().split(";");
+            for (String mdata : mProductImg) {
+                new File(mdata).delete();
+            }
+            Toast.makeText(this, "Files deleted", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Log.d(TAG, "deleteAllFiles: ");
+            Toast.makeText(this, "Unable to delete files", Toast.LENGTH_SHORT).show();
+        }
+
+
+    }
+
 
     private void showDetails(int position) {
         Intent intenr = new Intent(this, ComposeActivity.class);
@@ -178,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements CardListAdapter.C
 //                    fileWriter.append(SEPARATOR);
 //                    fileWriter.append(DELIMITER);
 
-                    fileWriter.append(java.lang.String.format(Locale.US, "%d%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", card.getUsrid(), SEPARATOR, removeSplitters(card.getCmpyname()), SEPARATOR, card.getDescription(), SEPARATOR,removeSplitters(card.getComments()), SEPARATOR,removeFILimiters(card.getFimgpath()), SEPARATOR, removeFILimiters(card.getBimgpath()), SEPARATOR, removeDelimiters(card.getProductPhotos()), SEPARATOR, card.getDatetime(), DELIMITER));
+                    fileWriter.append(java.lang.String.format(Locale.US, "%d%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", card.getUsrid(), SEPARATOR, removeSplitters(card.getCmpyname()), SEPARATOR, card.getDescription(), SEPARATOR, removeSplitters(card.getComments()), SEPARATOR, removeFILimiters(card.getFimgpath()), SEPARATOR, removeFILimiters(card.getBimgpath()), SEPARATOR, removeDelimiters(card.getProductPhotos()), SEPARATOR, card.getDatetime(), DELIMITER));
                 }
                 fileWriter.flush();
                 fileWriter.close();
@@ -191,21 +212,22 @@ public class MainActivity extends AppCompatActivity implements CardListAdapter.C
             return null;
         }
 
-        public String removeSplitters(String mdata){
+        public String removeSplitters(String mdata) {
             return mdata.replaceAll("\n", ";");
         }
-        private String removeFILimiters(String mData){
-            String[] sData=mData.split("/");
-            String sdjsd=sData[sData.length-1];
+
+        private String removeFILimiters(String mData) {
+            String[] sData = mData.split("/");
+            String sdjsd = sData[sData.length - 1];
             return sdjsd;
         }
 
         private String removeDelimiters(String productPhotos) {
 
-            String[] mData=productPhotos.split(";");
-            StringBuilder stringBuilder=new StringBuilder();
-            for (String data:mData){
-                String[] inData=data.split("/");
+            String[] mData = productPhotos.split(";");
+            StringBuilder stringBuilder = new StringBuilder();
+            for (String data : mData) {
+                String[] inData = data.split("/");
                 stringBuilder.append(inData[inData.length - 1]);
                 stringBuilder.append("; ");
 
