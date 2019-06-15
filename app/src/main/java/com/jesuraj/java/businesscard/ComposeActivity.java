@@ -1,6 +1,8 @@
 package com.jesuraj.java.businesscard;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -11,11 +13,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +31,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.File;
@@ -51,7 +56,7 @@ public class ComposeActivity extends AppCompatActivity implements RecyclerViewCl
     private File photoFile = null;
     private String mCurrenPath = "";
     private Uri uri = null;
-    private Button buttonSave, btnAdd;
+    private MaterialButton buttonSave, btnAdd;
     private CardViewModel cardViewModel;
 
     private RecyclerView recyclerView;
@@ -131,23 +136,23 @@ public class ComposeActivity extends AppCompatActivity implements RecyclerViewCl
         ivBackView.setImageBitmap(ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(cardData.getBimgpath()), 100, 100));
         ivFrontView.setImageBitmap(ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(cardData.getFimgpath()), 100, 100));
         String tmp = cardData.getProductPhotos();
-        String[] mData = tmp.split(",");
+        String[] mData = tmp.split(";");
         ArrayList<ProductData> productData = new ArrayList<>();
         for (String mData1 : mData) {
             productData.add(new ProductData(mData1, ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(mData1), 100, 100)));
 
         }
-
         prodcutAdaper.setPathList(productData);
         buttonSave.setVisibility(View.GONE);
         btnAdd.setVisibility(View.GONE);
+//        etComments.setInputType(InputType.TYPE_NULL);
     }
 
     private String attachProducts() {
         StringBuilder stringBuilder = new StringBuilder();
         for (ProductData productData : prodcutAdaper.getPathList()) {
             stringBuilder.append(productData.getPath());
-            stringBuilder.append(",");
+            stringBuilder.append(";");
         }
         return stringBuilder.toString();
     }
@@ -170,10 +175,10 @@ public class ComposeActivity extends AppCompatActivity implements RecyclerViewCl
     }
 
     private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HH_mm_ss", Locale.US).format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HH_mm_ss", Locale.US).format(new Date());
+//        String imageFileName = "JPEG_" + timeStamp + "";
         File storageDir = ComposeActivity.this.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+        File image = File.createTempFile("IMG", ".jpg", storageDir);
         // save the file path
         mCurrenPath = image.getAbsolutePath();
         return image;
@@ -262,8 +267,25 @@ public class ComposeActivity extends AppCompatActivity implements RecyclerViewCl
 
     }
 
+
+
     @Override
-    public void onLongClick(View view, int position) {
+    public void onLongClick(View view, final int position) {
+        Toast.makeText(this, "long clicked", Toast.LENGTH_SHORT).show();
+        new AlertDialog.Builder(ComposeActivity.this)
+                .setMessage("Do you want to remove this image?")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        prodcutAdaper.removeData(position);
+                        Toast.makeText(ComposeActivity.this, "removed", Toast.LENGTH_SHORT).show();
+                    }
+                }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        }).show();
 
     }
 }

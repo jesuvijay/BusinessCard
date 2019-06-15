@@ -62,6 +62,12 @@ public class ProductAdaper extends RecyclerView.Adapter<ProductAdaper.CardViewHo
 
     public void setPathList(List<ProductData> pathList) {
         this.pathList = pathList;
+        notifyDataSetChanged();
+    }
+
+    public void removeData(int position){
+        pathList.remove(position);
+        notifyDataSetChanged();
     }
 
     class CardViewHoldeer extends RecyclerView.ViewHolder implements View.OnClickListener,View.OnLongClickListener {
@@ -73,6 +79,7 @@ public class ProductAdaper extends RecyclerView.Adapter<ProductAdaper.CardViewHo
             imageView = itemView.findViewById(R.id.ivProduct);
             this.recyclerViewClickListener = recyclerViewClickListener;
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
 
 
         }

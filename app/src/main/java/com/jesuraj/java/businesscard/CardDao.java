@@ -3,6 +3,7 @@ package com.jesuraj.java.businesscard;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
@@ -16,4 +17,7 @@ public interface CardDao {
 
     @Query("select * from Card")
     LiveData<List<Card>> getCardData();
+
+    @Delete
+    void delete(Card... cards);
 }

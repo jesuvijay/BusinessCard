@@ -10,19 +10,25 @@ import java.util.List;
 
 public class CardViewModel extends AndroidViewModel {
 
+    private CardRepository cardRepository;
+    private LiveData<List<Card>> listAllCards;
+
     public CardViewModel(@NonNull Application application) {
         super(application);
         cardRepository = new CardRepository(application);
         listAllCards = cardRepository.getmAllCards();
     }
 
-    private CardRepository cardRepository;
-    private LiveData<List<Card>> listAllCards;
+
 
     public void insert(Card... cards) {
         cardRepository.insert(cards);
     }
 
+    public void  delete(Card... cards)
+    {
+        cardRepository.deleteCard(cards);
+    }
     public LiveData<List<Card>> getListAllCards() {
         return listAllCards;
     }

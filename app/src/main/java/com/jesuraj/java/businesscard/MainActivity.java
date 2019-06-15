@@ -1,5 +1,6 @@
 package com.jesuraj.java.businesscard;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -18,6 +20,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.ajts.androidmads.library.SQLiteToExcel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
@@ -94,6 +97,26 @@ public class MainActivity extends AppCompatActivity implements CardListAdapter.C
         showDetails(position);
     }
 
+    @Override
+    public void onLongClick(final int position) {
+//        new android.app.AlertDialog()
+        new android.app.AlertDialog.Builder(MainActivity.this).setMessage("Do you want to delete this data ?")
+
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        cardViewModel.delete(cardListAdapter.getItem(position));
+
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).show();
+    }
+
     private void showDetails(int position) {
         Intent intenr = new Intent(this, ComposeActivity.class);
         intenr.putExtra(CARD_DETAILS, cardListAdapter.getItem(position));
@@ -104,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements CardListAdapter.C
 
         File exportdir;
         private List<Card> cardLis;
-        private String SEPARATOR = " , ";
+        private String SEPARATOR = ",";
         private String DELIMITER = "\n";
         private WeakReference<MainActivity> activityWeakReference;
 
@@ -136,12 +159,26 @@ public class MainActivity extends AppCompatActivity implements CardListAdapter.C
                         .append("Comments").append(SEPARATOR)
                         .append("FrontImagePath").append(SEPARATOR)
                         .append("BackImagePath").append(SEPARATOR)
-                        .append("ProductImgPath").append(SEPARATOR)
+                        .append("ProductPhotos").append(SEPARATOR)
                         .append("Datetime").append(SEPARATOR)
                         .append(DELIMITER);
 
                 for (Card card : cardLis) {
-                    fileWriter.append(java.lang.String.format(Locale.US, "%d%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", card.getUsrid(), SEPARATOR, card.getCmpyname(), SEPARATOR, card.getDescription(), SEPARATOR, card.getComments(), SEPARATOR, card.getFimgpath(), SEPARATOR, card.getBimgpath(), SEPARATOR, card.getDatetime(), SEPARATOR, card.getProductPhotos(), DELIMITER));
+//                    fileWriter.append(String.valueOf(card.getUsrid()));
+//                    fileWriter.append(SEPARATOR);
+//                    fileWriter.append(card.getCmpyname());
+//                    fileWriter.append(SEPARATOR);
+//                    fileWriter.append(card.getDescription());
+//                    fileWriter.append(SEPARATOR);
+//                    fileWriter.append(card.getComments());
+//                    fileWriter.append(SEPARATOR);
+//                    fileWriter.append((card.getFimgpath().trim()));
+////                    fileWriter.append(SEPARATOR);
+//                    fileWriter.append((card.getBimgpath()));
+//                    fileWriter.append(SEPARATOR);
+//                    fileWriter.append(DELIMITER);
+
+                    fileWriter.append(java.lang.String.format(Locale.US, "%d%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", card.getUsrid(), SEPARATOR, removeSplitters(card.getCmpyname()), SEPARATOR, card.getDescription(), SEPARATOR,removeSplitters(card.getComments()), SEPARATOR,removeFILimiters(card.getFimgpath()), SEPARATOR, removeFILimiters(card.getBimgpath()), SEPARATOR, removeDelimiters(card.getProductPhotos()), SEPARATOR, card.getDatetime(), DELIMITER));
                 }
                 fileWriter.flush();
                 fileWriter.close();
@@ -152,6 +189,28 @@ public class MainActivity extends AppCompatActivity implements CardListAdapter.C
             }
 
             return null;
+        }
+
+        public String removeSplitters(String mdata){
+            return mdata.replaceAll("\n", ";");
+        }
+        private String removeFILimiters(String mData){
+            String[] sData=mData.split("/");
+            String sdjsd=sData[sData.length-1];
+            return sdjsd;
+        }
+
+        private String removeDelimiters(String productPhotos) {
+
+            String[] mData=productPhotos.split(";");
+            StringBuilder stringBuilder=new StringBuilder();
+            for (String data:mData){
+                String[] inData=data.split("/");
+                stringBuilder.append(inData[inData.length - 1]);
+                stringBuilder.append("; ");
+
+            }
+            return stringBuilder.toString();
         }
 
         @Override

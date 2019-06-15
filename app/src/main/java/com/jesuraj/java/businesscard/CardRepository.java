@@ -27,6 +27,24 @@ public class CardRepository {
         new InsertAsynTask(cardDao).execute(cards);
     }
 
+    public void deleteCard(Card... cards){
+        new DeleteAsynTask(cardDao).execute(cards);
+
+    }
+
+    private static class DeleteAsynTask extends AsyncTask<Card,Void,Void>{
+        private CardDao cardDao;
+
+        public DeleteAsynTask(CardDao cardDao) {
+            this.cardDao = cardDao;
+        }
+
+        @Override
+        protected Void doInBackground(Card... cards) {
+           cardDao.delete(cards);
+            return null;
+        }
+    }
     private static class InsertAsynTask extends AsyncTask<Card, Void, Void> {
         private CardDao cardDao;
 

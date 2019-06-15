@@ -18,7 +18,8 @@ public abstract class CardDatabase extends RoomDatabase {
             synchronized (CardDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room
-                               .databaseBuilder(context.getApplicationContext(), CardDatabase.class, "card_database")
+                               .databaseBuilder(context.getApplicationContext(),
+                                       CardDatabase.class, "card_database")
                             .fallbackToDestructiveMigration()
                             .build();
                 }

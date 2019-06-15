@@ -1,7 +1,6 @@
 package com.jesuraj.java.businesscard;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,7 +61,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardLi
         else return cardList.size();
     }
 
-    class CardListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class CardListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         private TextView tvName, tvTime, tvDesc;
 
@@ -73,8 +72,9 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardLi
             tvName = itemView.findViewById(R.id.tvName);
             tvTime = itemView.findViewById(R.id.tvTime);
             tvDesc = itemView.findViewById(R.id.tvdesc);
-            this.cardClickListener=cardClickListener;
+            this.cardClickListener = cardClickListener;
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
         }
 
 
@@ -83,10 +83,19 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardLi
 
             cardClickListener.onClick(getAdapterPosition());
 
+
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            cardClickListener.onLongClick(getAdapterPosition());
+            return true;
         }
     }
 
     public interface CardClickListener {
         void onClick(int position);
+
+        void onLongClick(int position);
     }
 }
