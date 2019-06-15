@@ -285,7 +285,7 @@ public class ComposeActivity extends AppCompatActivity implements RecyclerViewCl
     @Override
     public void onBackPressed() {
         new AlertDialog.Builder(ComposeActivity.this)
-                .setMessage("Do you want to exit")
+                .setMessage("Do you want to exit?")
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
