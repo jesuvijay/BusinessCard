@@ -13,11 +13,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.text.InputType;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -36,10 +33,7 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
 
 public class ComposeActivity extends AppCompatActivity implements RecyclerViewClickListener {
 
@@ -214,10 +208,10 @@ public class ComposeActivity extends AppCompatActivity implements RecyclerViewCl
         if (resultCode == RESULT_OK) {
             Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
             if (requestCode == REQUEST_CODE_FR) {
-                frontImgPath=photoFile.getAbsolutePath();
+                frontImgPath = photoFile.getAbsolutePath();
                 ivFrontView.setImageBitmap(ThumbnailUtils.extractThumbnail(bitmap, 100, 100));
             } else if (requestCode == REQUEST_CODE_BK) {
-                backImgPath=photoFile.getAbsolutePath();
+                backImgPath = photoFile.getAbsolutePath();
                 ivBackView.setImageBitmap(bitmap);
             } else
                 prodcutAdaper.addData(new ProductData(photoFile.getAbsolutePath(), ThumbnailUtils.extractThumbnail(bitmap, 100, 100)));
@@ -268,7 +262,6 @@ public class ComposeActivity extends AppCompatActivity implements RecyclerViewCl
     }
 
 
-
     @Override
     public void onLongClick(View view, final int position) {
         Toast.makeText(this, "long clicked", Toast.LENGTH_SHORT).show();
@@ -288,4 +281,23 @@ public class ComposeActivity extends AppCompatActivity implements RecyclerViewCl
         }).show();
 
     }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(ComposeActivity.this)
+                .setMessage("Do you want to exit")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                        dialog.dismiss();
+                    }
+                }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        }).show();
+    }
+
 }
